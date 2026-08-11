@@ -8,24 +8,28 @@ class Database:
         self.nombre_db=nombre_db if nombre_db else "MovimentosYCtaCte.db"
         self.connexion=sqlite3.connect(self.nombre_db) 
 
-    def crear_tabla(self,nombre_table,columnas=[],tipo_columnas=[],unicos_columnas=[]):
+    def crear_tabla(self,nombre_table,columnas=[],tipo_columnas=[],unicos_columnas=[],foreign_keys=[],referencias=[]):
      cursor=self.connexion.cursor()
      TABLE_CREACIÓN_QUERY=f"""CREATE TABLE IF NOT EXISTS {nombre_table} ({0});""" 
      columnasformateadas=[]
-     if len(columnas)== len(tipo_columnas):
+     if len(columnas) == len(tipo_columnas):
       for col, tipo in zip(columnas,tipo_columnas):
-           columnasformateadas
+           if col in foreign_keys:
+               columna_index=foreign_keys.index(col)
+               columnasformateadas.append(f"FOREIGN KEY ({col}) REFERENCES {referencias[columna_index]}") 
            if col in unicos_columnas:
-            columnasformateadas.append(f"{col} {tipo} PRIMARY KEY")
+            columnasformateadas.append(f"{col} {tipo} PRIMARY KEY AUTOINCREMENT")
            else: 
             columnasformateadas.append(f"{col}{tipo}")  
       cursor.execute(TABLE_CREACIÓN_QUERY.format(",".join(columnasformateadas)))
       self.connexion.commit()
      else:
         raise ValueError("No SE PUEDE CREAR LA TABLE {nombre_table} EN DATABASE {self.nombre_db} PORQUE EL NUMERO DE COLUMNAS NO COINCIDE CON EL NUMERO DE TIPOS PRESENTADOS ") 
+     
+    
+
     def insertar_datos(self,nombre_table,columnas=[],valores=[]):
        cursor=self.connexion.cursor();
-
        if len (valores)>0 and len(columnas)==0:  
         INSERT_QUERY=f"""INSERT INTO {nombre_table} VALUES ({1})"""
         cursor.execute(INSERT_QUERY.format(",".join(valores)))
