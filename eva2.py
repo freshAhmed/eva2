@@ -29,25 +29,21 @@ try:
  print(datos)
 except ValueError as e :
    print(e)
-# class Cuenta_Corriente:
-#     """
-#     Clase que representa una cuenta corriente.
-#     """
-#     def __init__(self, numeroCtaCte, rutTitularCta, nomTitularCta, saldoCta):
-#         """
-#         Inicializa una nueva instancia de la clase Cuenta_Corriente.
-#         """
-#         self.numeroCtaCte = numeroCtaCte
-#         self.rutTitularCta = rutTitularCta
-#         self.nomTitularCta = nomTitularCta
-#         self.saldoCta = saldoCta
-#         self.guardar_en_db()
-
-#     def guardar_en_db(self):
-#         """
-#         Guarda la cuenta corriente en la base de datos.
-#         """
-#         cursor.execute('''INSERT INTO CtaCte (numeroCtaCte, rutTitularCta, nomTitularCta, saldoCta)
-#                           VALUES (?, ?, ?, ?)''',
-#                        (self.numeroCtaCte, self.rutTitularCta, self.nomTitularCta, self.saldoCta))
-#         conn.commit()
+class Cuenta_Corriente:
+    """
+    Clase que representa una cuenta corriente.
+    """
+    def __init__(self, db, numeroCtaCte, rutTitularCta, nomTitularCta, saldoCta):
+        """
+        Inicializa una nueva instancia de la clase Cuenta_Corriente.
+        """
+        self.db=db if db else Database("MovimentosYCtaCte.db")
+        self.numeroCtaCte = numeroCtaCte
+        self.rutTitularCta = rutTitularCta
+        self.nomTitularCta = nomTitularCta
+        self.saldoCta = saldoCta
+        self.db.insertar_datos("CtaCte",["numeroCtaCte","rutTitularCta","nomTitularCta","saldoCta"],[self.numeroCtaCte,self.rutTitularCta,self.nomTitularCta,self.saldoCta])
+    def abonar (self,monto):
+        pass
+    def cargar (self,monto):
+       pass       
