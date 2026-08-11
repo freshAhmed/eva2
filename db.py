@@ -14,13 +14,20 @@ class Database:
      columnasformateadas=[]
      if len(columnas) == len(tipo_columnas):
       for col, tipo in zip(columnas,tipo_columnas):
+           
            if col in foreign_keys:
                columna_index=foreign_keys.index(col)
                columnasformateadas.append(f"FOREIGN KEY ({col}) REFERENCES {referencias[columna_index]}") 
            if col in unicos_columnas:
-            columnasformateadas.append(f"{col} {tipo} PRIMARY KEY AUTOINCREMENT")
-           else: 
-            columnasformateadas.append(f"{col}{tipo}")  
+            if tipo.upper() =="BIT":
+             columnasformateadas.append(f"{col} INTEGER NOT NULL CHECK (activo IN (0, 1)) PRIMARY KEY AUTOINCREMENT")
+            else:    
+             columnasformateadas.append(f"{col} {tipo} PRIMARY KEY AUTOINCREMENT")
+           else:
+            if tipo.upper() =="BIT":
+               columnasformateadas.append(f"{col} INTEGER NOT NULL CHECK (activo IN (0, 1))") 
+            else:   
+             columnasformateadas.append(f"{col}{tipo}")  
       cursor.execute(TABLE_CREACIÓN_QUERY.format(",".join(columnasformateadas)))
       self.connexion.commit()
      else:
