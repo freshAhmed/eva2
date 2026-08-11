@@ -61,34 +61,38 @@ class Database:
        else:
           raise ValueError("NO SE PUEDE INSERTAR LOS DATOS EN EL DATABASE")  
        
-    def buscar_datos(self,nombre_table,columnas=[],condicion=""):
+    def buscar_datos(self,nombre_tabla,columnas=[],condicion=""):
         cursor=self.connexion.cursor()
         datos=[]
-        SELECT_QUERY=f"""SELECT * FROM {nombre_table} WHERE {condicion}""" if len(condicion)>0 else f"""SELECT * FROM {nombre_table}"""
+        SELECT_QUERY=f"""SELECT * FROM {nombre_tabla} WHERE {condicion}""" if len(condicion)>0 else f"""SELECT * FROM {nombre_tabla}"""
         if len(columnas)>0:
-           SELECT_QUERY=f"""SELECT {",".join(columnas)} FROM {nombre_table} WHERE {condicion}""" if len(condicion)>0 else f"""SELECT {",".join(columnas)} FROM {nombre_table}"""
+           SELECT_QUERY=f"""SELECT {",".join(columnas)} FROM {nombre_tabla} WHERE {condicion}""" if len(condicion)>0 else f"""SELECT {",".join(columnas)} FROM {nombre_tabla}"""
        
         datos=cursor.execute(SELECT_QUERY).fetchall()
         return datos 
 
-    def eliminar_datos(self,nombre_table,condicion=""):
+    def eliminar_datos(self,nombre_tabla,condicion=""):
         cursor=self.connexion.cursor()
         ELIMINAR_QUERY=f"""
-                       DELETE FROM {nombre_table} WHERE {condicion}"""
+                       DELETE FROM {nombre_tabla} WHERE {condicion}"""
         cursor.execute(ELIMINAR_QUERY)
 
         self.connexion.commit()      
    
 
-    def actualizar_datos(self,nombre_table,columnas=[],valores=[],condicion=""):
+    def actualizar_datos(self,nombre_tabla,columnas=[],valores=[],condicion=""):
        cursor=self.connexion.cursor()
        if len(valores)==len(columnas):
-          ACTUALIZAR_QUERY=f"""UPDATE {nombre_table} SET {(f"{col}={val}" for col,val in zip(columnas,valores))} WHERE {condicion};"""
+          ACTUALIZAR_QUERY=f"""UPDATE {nombre_tabla} SET {(f"{col}={val}" for col,val in zip(columnas,valores))} WHERE {condicion};"""
           cursor.execute(ACTUALIZAR_QUERY)
-          self.connexion.commit()
+          self.connexion.commit() 
        else:
           raise ValueError("NO SE PUEDE ACTUALIZAR LOS DATOS EN EL DATABASE")  
 
     def cerrar_conexion(self):
        self.connexion.close()
 
+    def get_columnas(self,nombra_tabla):
+       cursor=self.connexion.cursor()
+       cursor.execute(f"SELECT * FROM {nombra_tabla}")
+       return cursor.description
