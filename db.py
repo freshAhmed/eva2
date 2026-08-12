@@ -22,13 +22,11 @@ class Database:
             else:   
              columnasformateadas.append(f"{col} {tipo} ")  
       for col in columnas:
-            if col in foreign_keys:
-                                  columna_index=foreign_keys.index(col)
-                                  columnasformateadas.append(f"FOREIGN KEY ({col}) REFERENCES {referencias[columna_index]}")    
+       if col in foreign_keys:
+         columna_index=foreign_keys.index(col)  
+         columnasformateadas.append(f"FOREIGN KEY ({col}) REFERENCES {referencias[columna_index]}")    
       s=" , ".join(columnasformateadas)      
-   
       TABLE_CREACIÓN_QUERY=f"CREATE TABLE IF NOT EXISTS {nombre_tabla} ({s});" 
-
       try:
        cursor.execute(f"DROP TABLE IF EXISTS {nombre_tabla}") 
        cursor.execute(TABLE_CREACIÓN_QUERY)
@@ -45,13 +43,10 @@ class Database:
        valores=list(map(str,valores))
        espaciostr=",".join(["?"]*len(valores))
        if len (valores)>0 and len(columnas)==0:  
-       
         INSERT_QUERY=f"""INSERT INTO {nombre_tabla} VALUES ({espaciostr})"""
         cursor.execute(INSERT_QUERY,valores)
         self.connexion.commit()
-
        elif len(valores)==len(columnas):
-          
           INSERT_QUERY=f"""INSERT INTO {nombre_tabla} ({",".join(columnas)}) VALUES ({espaciostr})"""
           cursor.execute(INSERT_QUERY,valores)
           self.connexion.commit()
