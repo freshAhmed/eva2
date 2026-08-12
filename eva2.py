@@ -1,6 +1,6 @@
 from db import Database
 import csv
-
+import random
 class Cuenta_Corriente:
     """
     Clase que representa una cuenta corriente.
@@ -23,12 +23,16 @@ class Cuenta_Corriente:
             print("El monto a abondar debe ser mayor que cero.")
             return
         self.saldoCta += monto
+        idMovimiento=random.randint(1000000,9999999)
         self.db.actualizar_datos("CtaCte",["saldoCta"],[self.saldoCta],f"numeroCtaCte={self.numeroCtaCte}")
-        self.db.insertar_datos("Movimientos",["CtaCte_numeroCtaCte","idMovimientos","tipoMovimiento","monto"],[self.numeroCtaCte,self.db.buscar_datos("Movimientos",[],f"CtaCte_numeroCtaCte={self.numeroCtaCte}")[-1][1]+1 if self.db.buscar_datos("Movimientos",[],f"CtaCte_numeroCtaCte={self.numeroCtaCte}") else 1,0,monto])
+        self.db.insertar_datos("Movimientos",["CtaCte_numeroCtaCte","idMovimientos","tipoMovimiento","monto"],[self.numeroCtaCte,idMovimiento,0,monto])
     def cargar (self,monto):
        """
        Carga un monto a la cuenta corriente.
        """
+       saldoCta=self.saldoCta
+       numeroCtaCte=self.numeroCtaCte
+       idMovimiento=random.randint(100000,999999)
        if monto <= 0:
            print("El monto a cargar debe ser mayor que cero.")
            return
@@ -36,8 +40,10 @@ class Cuenta_Corriente:
            print("Saldo insuficiente para realizar la carga.")
            return
        self.saldoCta -= monto
-       self.db.actualizar_datos("CtaCte",["saldoCta"],[self.saldoCta],f"numeroCtaCte={self.numeroCtaCte}")
-       self.db.insertar_datos("Movimientos",["CtaCte_numeroCtaCte","idMovimientos","tipoMovimiento","monto"],[self.numeroCtaCte,self.db.buscar_datos("Movimientos",[],f"CtaCte_numeroCtaCte={self.numeroCtaCte}")[-1][1]+1 if self.db.buscar_datos("Movimientos",[],f"CtaCte_numeroCtaCte={self.numeroCtaCte}") else 1,1,monto])    
+       #print(self.db.buscar_datos("Movimientos",[],f"CtaCte_numeroCtaCte={self.numeroCtaCte}")[-1][1]+1 if self.db.buscar_datos("Movimientos",[],f"CtaCte_numeroCtaCte={self.numeroCtaCte}") else 1)
+       self.db.actualizar_datos("CtaCte",["saldoCta"],[saldoCta],f"numeroCtaCte={numeroCtaCte}")
+       self.db.insertar_datos("Movimientos",["CtaCte_numeroCtaCte","idMovimientos","tipoMovimiento","monto"],
+                [numeroCtaCte,idMovimiento,1,monto])    
     def exportar_registros(self,nombre_tabla):
        """
        Exporta los registros de la tabla especificada a un archivo CSV.
@@ -70,19 +76,17 @@ if "__main__" == __name__:
   foreign_keys=["CtaCte_numeroCtaCte"]
   referencias=["CtaCte(numeroCtaCte)"]
   db.crear_tabla(nombre_tabla,columnas,tipo_columnas,unicos_columnas,foreign_keys,referencias)
-  db.insertar_datos("Movimientos",["CtaCte_numeroCtaCte","idMovimientos","tipoMovimiento","monto"],[12341232,1,True,1000.0])
-
- except ValueError as e :
-        CtaCte = Cuenta_Corriente(db, 22341232, "12360322-2", "johan", 12312.2)
-        CtaCte.abonar(5000)
-        CtaCte.cargar(2000)
-
-        CtaCte.exportar_registros("CtaCte")
-        CtaCte.exportar_registros("Movimientos")
-
+  db.insertar_datos("Movimientos",["CtaCte_numeroCtaCte","idMovimientos","tipoMovimiento","monto"],[12341232,321231,0,1000.0])
+  CtaCte = Cuenta_Corriente(db, 22341232, "12360322-2", "johan", 12312.2)
+  CtaCte.abonar(5000)
+  CtaCte.cargar(2000)
+  CtaCte.exportar_registros("CtaCte")
+  CtaCte.exportar_registros("Movimientos")
+  
   # Mostrar en consola para verificar los datos
-        print("CtaCte:", db.buscar_datos("CtaCte"))
-        print("Movimientos:", db.buscar_datos("Movimientos"))
+  print("CtaCte:", db.buscar_datos("CtaCte"))
+  print("Movimientos:", db.buscar_datos("Movimientos"))
+  
 
  except ValueError as e:
         print(e)
