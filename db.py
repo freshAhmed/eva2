@@ -1,8 +1,5 @@
 import sqlite3
 
-
-
-
 class Database:
     def __init__(self,nombre_db):
         self.nombre_db=nombre_db if nombre_db else "MovimentosYCtaCte.db"
@@ -83,7 +80,7 @@ class Database:
     def actualizar_datos(self,nombre_tabla,columnas=[],valores=[],condicion=""):
        cursor=self.connexion.cursor()
        if len(valores)==len(columnas):
-          ACTUALIZAR_QUERY=f"""UPDATE {nombre_tabla} SET {(f"{col}={val}" for col,val in zip(columnas,valores))} WHERE {condicion};"""
+          ACTUALIZAR_QUERY=f"""UPDATE {nombre_tabla} SET {", ".join(f"{col}={val}" for col, val in zip(columnas, valores))} WHERE {condicion};"""
           cursor.execute(ACTUALIZAR_QUERY)
           self.connexion.commit() 
        else:

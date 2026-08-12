@@ -1,7 +1,6 @@
 from db import Database
 import csv
 
-
 class Cuenta_Corriente:
     """
     Clase que representa una cuenta corriente.
@@ -17,12 +16,34 @@ class Cuenta_Corriente:
         self.saldoCta = saldoCta
         self.db.insertar_datos("CtaCte",["numeroCtaCte","rutTitularCta","nomTitularCta","saldoCta"],[self.numeroCtaCte,self.rutTitularCta,self.nomTitularCta,self.saldoCta])
     def abonar (self,monto):
-        pass
+        """
+        Abona un monto a la cuenta corriente.
+        """
+        if monto <= 0:
+            print("El monto a abondar debe ser mayor que cero.")
+            return
+        self.saldoCta += monto
+        self.db.actualizar_datos("CtaCte",["saldoCta"],[self.saldoCta],f"numeroCtaCte={self.numeroCtaCte}")
+        self.db.insertar_datos("Movimientos",["CtaCte_numeroCtaCte","idMovimientos","tipoMovimiento","monto"],[self.numeroCtaCte,self.db.buscar_datos("Movimientos",[],f"CtaCte_numeroCtaCte={self.numeroCtaCte}")[-1][1]+1 if self.db.buscar_datos("Movimientos",[],f"CtaCte_numeroCtaCte={self.numeroCtaCte}") else 1,0,monto])
     def cargar (self,monto):
-       pass       
+       """
+       Carga un monto a la cuenta corriente.
+       """
+       if monto <= 0:
+           print("El monto a cargar debe ser mayor que cero.")
+           return
+       if self.saldoCta < monto:
+           print("Saldo insuficiente para realizar la carga.")
+           return
+       self.saldoCta -= monto
+       self.db.actualizar_datos("CtaCte",["saldoCta"],[self.saldoCta],f"numeroCtaCte={self.numeroCtaCte}")
+       self.db.insertar_datos("Movimientos",["CtaCte_numeroCtaCte","idMovimientos","tipoMovimiento","monto"],[self.numeroCtaCte,self.db.buscar_datos("Movimientos",[],f"CtaCte_numeroCtaCte={self.numeroCtaCte}")[-1][1]+1 if self.db.buscar_datos("Movimientos",[],f"CtaCte_numeroCtaCte={self.numeroCtaCte}") else 1,1,monto])    
     def exportar_registros(self,nombre_tabla):
+       """
+       Exporta los registros de la tabla especificada a un archivo CSV.
+       """
        datos=self.db.buscar_datos(nombre_tabla)
-       nombres_columnas=[descripción[0] for descripción in self.db.get_columnas("CtaCte")]
+       nombres_columnas=[descripción[0] for descripción in self.db.get_columnas(nombre_tabla)]
        with open(f"{nombre_tabla}.csv","w",newline="",encoding="utf-8") as archivo:
          escritor=csv.writer(archivo)
          escritor.writerow(nombres_columnas)
@@ -38,19 +59,18 @@ if "__main__" == __name__:
   columnas=["numeroCtaCte","rutTitularCta","nomTitularCta","saldoCta"]
   tipo_columnas=["DOUBLE","VARCHAR(12)","VARCHAR(105)","DOUBLE"]
   unicos_columnas=["numeroCtaCte"]
-  foreign_keys=["numeroCtaCte"]
-  referencias=["Movimientos(numeroCtaCte)"]
-  db.crear_tabla(nombre_tabla,columnas,tipo_columnas,unicos_columnas,foreign_keys,referencias)
-
-
+  db.crear_tabla(nombre_tabla,columnas,tipo_columnas,unicos_columnas)
+  db.insertar_datos("CtaCte",["numeroCtaCte","rutTitularCta","nomTitularCta","saldoCta"],[12341232,"12360322-2","johan",12312.2])
 
 #crear la tabla Movimientos
   nombre_tabla="Movimientos"
   columnas=["CtaCte_numeroCtaCte","idMovimientos","tipoMovimiento","monto"]
   tipo_columnas=["DOUBLE","DOUBLE","BIT","DOUBLE"]
   unicos_columnas=["idMovimientos"]    
-  db.crear_tabla(nombre_tabla,columnas,tipo_columnas,unicos_columnas)
-  db.insertar_datos("CtaCte",[],[12341232,"12360322-2","johan",12312.2])
+  foreign_keys=["CtaCte_numeroCtaCte"]
+  referencias=["CtaCte(numeroCtaCte)"]
+  db.crear_tabla(nombre_tabla,columnas,tipo_columnas,unicos_columnas,foreign_keys,referencias)
+  db.insertar_datos("Movimientos",["CtaCte_numeroCtaCte","idMovimientos","tipoMovimiento","monto"],[12341232,1,True,1000.0])
 
  except ValueError as e :
    print(e)
@@ -58,3 +78,4 @@ if "__main__" == __name__:
  CtaCte.exportar_registros("CtaCte")
  datos=db.buscar_datos("CtaCte") # buscar todas los datos
  print(datos) 
+
