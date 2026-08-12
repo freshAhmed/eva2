@@ -73,9 +73,17 @@ if "__main__" == __name__:
   db.insertar_datos("Movimientos",["CtaCte_numeroCtaCte","idMovimientos","tipoMovimiento","monto"],[12341232,1,True,1000.0])
 
  except ValueError as e :
-   print(e)
- CtaCte=Cuenta_Corriente(db,22341232,"12360322-2","johan",12312.2)  
- CtaCte.exportar_registros("CtaCte")
- datos=db.buscar_datos("CtaCte") # buscar todas los datos
- print(datos) 
+        CtaCte = Cuenta_Corriente(db, 22341232, "12360322-2", "johan", 12312.2)
+        CtaCte.abonar(5000)
+        CtaCte.cargar(2000)
+
+        CtaCte.exportar_registros("CtaCte")
+        CtaCte.exportar_registros("Movimientos")
+
+  # Mostrar en consola para verificar los datos
+        print("CtaCte:", db.buscar_datos("CtaCte"))
+        print("Movimientos:", db.buscar_datos("Movimientos"))
+
+ except ValueError as e:
+        print(e)
 
