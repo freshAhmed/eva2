@@ -14,7 +14,7 @@ class Cuenta_Corriente:
         self.numeroCtaCte = numeroCtaCte
         self.rutTitularCta = rutTitularCta
         self.nomTitularCta = nomTitularCta
-        self.saldoCta = saldoCta
+        self.saldoCta = decimal.Decimal(saldoCta)
         self.db.insertar_datos("CtaCte",["numeroCtaCte","rutTitularCta","nomTitularCta","saldoCta"],[self.numeroCtaCte,self.rutTitularCta,self.nomTitularCta,self.saldoCta])
     def abonar (self,monto):
         """
@@ -43,7 +43,7 @@ class Cuenta_Corriente:
            print("Saldo insuficiente para realizar la carga.")
            return
        self.saldoCta -= monto
-       self.db.actualizar_datos("CtaCte",["saldoCta"],[saldoCta],f"numeroCtaCte={numeroCtaCte}")
+       self.db.actualizar_datos("CtaCte",["saldoCta"],[self.saldoCta],f"numeroCtaCte={numeroCtaCte}")
        self.db.insertar_datos("Movimientos",["CtaCte_numeroCtaCte","idMovimientos","tipoMovimiento","monto"],
                 [numeroCtaCte,idMovimiento,1,monto])    
     def exportar_registros(self,nombre_tabla):
