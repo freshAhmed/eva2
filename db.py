@@ -117,5 +117,5 @@ class Database:
 
     def get_columnas(self,nombra_tabla):
        cursor=self.connexion.cursor()
-       cursor.execute(f"SELECT * FROM {nombra_tabla}")
+       cursor.execute(f"SELECT * FROM {nombra_tabla}") #add something
        return cursor.description
