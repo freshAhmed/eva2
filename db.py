@@ -5,27 +5,35 @@ class Database:
         self.nombre_db=nombre_db if nombre_db else "MovimentosYCtaCte.db"
         self.connexion=sqlite3.connect(self.nombre_db) 
 
-    def crear_tabla(self,nombre_tabla,columnas=[],tipo_columnas=[],unicos_columnas=[],foreign_keys=[],referencias=[]):
+    def crear_tabla(self,
+                    nombre_tabla,columnas=[],
+                    tipo_columnas=[],
+                    unicos_columnas=[],
+                    foreign_keys=[],
+                    referencias=[]):
      cursor=self.connexion.cursor()
   
-     columnasformateadas=[]
+     COLUMNAS_FORMATEADAS=[]
      if len(columnas) == len(tipo_columnas):
       for col, tipo in zip(columnas,tipo_columnas):
            if col in unicos_columnas:
             if tipo.upper() =="BIT":
-             columnasformateadas.append(f"{col} INTEGER NOT NULL CHECK ({col} IN (0, 1)) PRIMARY KEY")
+             COLUMNAS_FORMATEADAS.append(f"""{col} INTEGER NOT NULL CHECK 
+                                           ({col} IN (0, 1)) PRIMARY KEY""")
             else:    
-             columnasformateadas.append(f"{col} {tipo} PRIMARY KEY")
+             COLUMNAS_FORMATEADAS.append(f"{col} {tipo} PRIMARY KEY")
            else:
             if tipo.upper() =="BIT":
-               columnasformateadas.append(f"{col} INTEGER NOT NULL CHECK ({col} IN (0, 1))") 
+               COLUMNAS_FORMATEADAS.append(f"""{col} INTEGER NOT NULL CHECK
+                                             ({col} IN (0, 1))""") 
             else:   
-             columnasformateadas.append(f"{col} {tipo} ")  
+             COLUMNAS_FORMATEADAS.append(f"{col} {tipo} ")  
       for col in columnas:
        if col in foreign_keys:
          columna_index=foreign_keys.index(col)  
-         columnasformateadas.append(f"FOREIGN KEY ({col}) REFERENCES {referencias[columna_index]}")    
-      s=" , ".join(columnasformateadas)      
+         COLUMNAS_FORMATEADAS.append(f"""FOREIGN KEY ({col})
+                                        REFERENCES {referencias[columna_index]}""")    
+      s=" , ".join(COLUMNAS_FORMATEADAS)      
       TABLE_CREACIÓN_QUERY=f"CREATE TABLE IF NOT EXISTS {nombre_tabla} ({s});" 
       try:
        cursor.execute(f"DROP TABLE IF EXISTS {nombre_tabla}") 
@@ -34,21 +42,28 @@ class Database:
          print (f"error in execute {e}")
       self.connexion.commit()
      else:
-        raise ValueError("No SE PUEDE CREAR LA TABLE {nombre_table} EN DATABASE {self.nombre_db} PORQUE EL NUMERO DE COLUMNAS NO COINCIDE CON EL NUMERO DE TIPOS PRESENTADOS ") 
+        raise ValueError("""No SE PUEDE CREAR LA TABLE {nombre_table} 
+                            EN DATABASE {self.nombre_db} PORQUE EL NUMERO DE COLUMNAS
+                            NO COINCIDE CON EL NUMERO 
+                            DE TIPOS PRESENTADOS """) 
      
     
 
-    def insertar_datos(self,nombre_tabla,columnas=[],valores=[]):
+    def insertar_datos(self,
+                       nombre_tabla,
+                       columnas=[],
+                       valores=[]):
        cursor=self.connexion.cursor();
        valores=list(map(str,valores))
-       espaciostr=",".join(["?"]*len(valores))
+       ESPACIO_STR=",".join(["?"]*len(valores))
        if len (valores)>0 and len(columnas)==0:  
-        INSERT_QUERY=f"""INSERT INTO {nombre_tabla} VALUES ({espaciostr})"""
-        cursor.execute(INSERT_QUERY,valores)
+        CONSULTA_AGREGAR=f"""INSERT INTO {nombre_tabla} VALUES ({ESPACIO_STR})"""
+        cursor.execute(CONSULTA_AGREGAR,valores)
         self.connexion.commit()
        elif len(valores)==len(columnas):
-          INSERT_QUERY=f"""INSERT INTO {nombre_tabla} ({",".join(columnas)}) VALUES ({espaciostr})"""
-          cursor.execute(INSERT_QUERY,valores)
+          CONSULTA_AGREGAR=f"""INSERT INTO {nombre_tabla} ({",".join(columnas)}) 
+          VALUES ({ESPACIO_STR})"""
+          cursor.execute(CONSULTA_AGREGAR,valores)
           self.connexion.commit()
        else:
           raise ValueError("NO SE PUEDE INSERTAR LOS DATOS EN EL DATABASE")  
@@ -56,27 +71,43 @@ class Database:
     def buscar_datos(self,nombre_tabla,columnas=[],condicion=""):
         cursor=self.connexion.cursor()
         datos=[]
-        SELECT_QUERY=f"""SELECT * FROM {nombre_tabla} WHERE {condicion}""" if len(condicion)>0 else f"""SELECT * FROM {nombre_tabla}"""
+        CONSULTA_BUSCAR=f"""SELECT * FROM {nombre_tabla}
+                            WHERE {condicion}
+                            """if len(condicion)>0 else f"""SELECT * FROM {nombre_tabla}"""
+
         if len(columnas)>0:
-           SELECT_QUERY=f"""SELECT {",".join(columnas)} FROM {nombre_tabla} WHERE {condicion}""" if len(condicion)>0 else f"""SELECT {",".join(columnas)} FROM {nombre_tabla}"""
+           CONSULTA_BUSCAR=f"""SELECT {",".join(columnas)}
+                               FROM {nombre_tabla}
+                               WHERE {condicion} """ if len(condicion)>0 else f"""
+                               SELECT {",".join(columnas)} FROM {nombre_tabla}"""
        
-        datos=cursor.execute(SELECT_QUERY).fetchall()
+        datos=cursor.execute(CONSULTA_BUSCAR).fetchall()
         return datos 
 
-    def eliminar_datos(self,nombre_tabla,condicion=""):
+    def eliminar_datos(self,
+                       nombre_tabla,
+                       condicion=""):
         cursor=self.connexion.cursor()
-        ELIMINAR_QUERY=f"""
-                       DELETE FROM {nombre_tabla} WHERE {condicion}"""
-        cursor.execute(ELIMINAR_QUERY)
+        CONSULTA_ELIMINACION=f"""
+                              DELETE FROM {nombre_tabla}
+                              WHERE {condicion}"""
+        cursor.execute(CONSULTA_ELIMINACION)
 
         self.connexion.commit()      
    
 
-    def actualizar_datos(self,nombre_tabla,columnas=[],valores=[],condicion=""):
+    def actualizar_datos(self,
+                         nombre_tabla,
+                         columnas=[],
+                         valores=[],
+                         condicion=""):
        cursor=self.connexion.cursor()
        if len(valores)==len(columnas):
-          ACTUALIZAR_QUERY=f"""UPDATE {nombre_tabla} SET {", ".join(f"{col}={val}" for col, val in zip(columnas, valores))} WHERE {condicion};"""
-          cursor.execute(ACTUALIZAR_QUERY)
+          CONSULTA_ACTUALIZACION=f"""
+          UPDATE {nombre_tabla} SET
+          {", ".join(f"{col}={val}" for col, val in zip(columnas, valores))}
+          WHERE {condicion};"""
+          cursor.execute(CONSULTA_ACTUALIZACION)
           self.connexion.commit() 
        else:
           raise ValueError("NO SE PUEDE ACTUALIZAR LOS DATOS EN EL DATABASE")  
