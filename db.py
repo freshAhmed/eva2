@@ -3,10 +3,11 @@ import sqlite3
 class Database:
     def __init__(self,nombre_db):
         self.nombre_db=nombre_db if nombre_db else "MovimentosYCtaCte.db"
-        self.connexion=sqlite3.connect(self.nombre_db) 
+        self.connexion=sqlite3.connect(self.nombre_db,detect_types=sqlite3.PARSE_DECLTYPES|
+                                                                    sqlite3.PARSE_COLNAMES)
 
     def crear_tabla(self,nombre_tabla,columnas=[],tipo_columnas=[]
-                        ,unicos_columnas=[],foreign_keys=[],referencias=[]):
+                        ,unicos_columnas=[],foreign_keys=[],referencias=[]):    
      cursor=self.connexion.cursor()
   
      columnas_formateadas=[]
