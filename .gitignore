@@ -3,3 +3,4 @@
 MovimentosYCtaCte.db
 __pycache__/db.cpython-312.pyc
 *.csv
+*/*/__pycache__
